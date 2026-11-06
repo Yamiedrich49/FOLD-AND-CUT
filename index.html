@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#F5F7F5"/>
-<title>FOLD & CUT · Master 500 · Tactile Update</title>
+<title>FOLD & CUT · Master 500 · Centered Guide</title>
 <style>
 :root{--ink:#23454b;--muted:#819498;--teal:#06aabc;--teald:#008b9f;--line:#dce6e5;--paper:#fffdf7;--bg:#f6f8f6;--soft:#ebf4f3;--orange:#dea368}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;background:var(--bg);color:var(--ink)}button{font:inherit;cursor:pointer}button:disabled{cursor:default}button:focus-visible{outline:3px solid #2cadbd;outline-offset:2px}
@@ -170,7 +170,8 @@ const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const ease=t=>1-Math.pow(1-t,3);
 const letters='ABCDEFGH';
 const reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-let idx=0,foldIdx=0,cutIdx=0,selected=-1,phase='fold',hold=false,gesture=null,animationToken=0,muted=false,activeAudio=null,noiseBuf=null,unlocked=false;
+let idx=0,foldIdx=0,cutIdx=0,selected=-1,phase='fold',hold=false,gesture=null,animationToken=0,muted=false,activeAudio=null,unlocked=false;
+let foldGuideStart=null;
 let hintVisible=false;let cutPieces=[],cutLines=[],cutCentroids=[],cutHitSegments=[],cutMaskPaths=[],unfoldReplay=false;
 function q(){let q=PUZZLES[idx];if(!q.folds){const t=FOLD_TEMPLATES[q.foldTemplate];q.folds=t.folds;q.foldMovie=t.foldMovie;q.stages=t.stages;q.camera=t.camera;}return q;}
 function setPhase(p){phase=p;app.dataset.phase=p;refreshUI()}
@@ -191,13 +192,37 @@ function rootCoords(e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;
 function camCoords(r,atStep=foldIdx){return {x:r.x,y:r.y}}
 function sc(f,k){return {x:f[0]*320,y:f[1]*320}}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+// Center the grip and direction guide on the visible moving flap, not on
+// an arbitrary anchor from the generated fold template.
+function centeredFlapGuide(f){
+ const fallback={x:320*f.arrow[0][0],y:320*f.arrow[0][1]};
+ let box;
+ try{box=flap.getBBox()}catch(e){return fallback}
+ if(!box||box.width<2||box.height<2)return fallback;
+ const mid={x:box.x+box.width/2,y:box.y+box.height/2};
+ if(typeof flap.isPointInFill!=='function')return mid;
+ const pt=svg.createSVGPoint();
+ function contains(x,y){pt.x=x;pt.y=y;try{return flap.isPointInFill(pt)}catch(e){return false}}
+ if(contains(mid.x,mid.y))return mid;
+ // For angled/concave flaps, select the closest interior point to the center.
+ let best=null,score=Infinity;
+ for(let iy=1;iy<=11;iy++)for(let ix=1;ix<=11;ix++){
+  let x=box.x+box.width*ix/12,y=box.y+box.height*iy/12;
+  if(!contains(x,y))continue;
+  const d=(x-mid.x)**2+(y-mid.y)**2;
+  if(d<score){score=d;best={x,y}}
+ }
+ return best||fallback;
+}
 function guideFold(k){
  const f=q().folds[k],a=f.arrow[0],b=f.arrow[1];
  $('clipFoldPath').setAttribute('d',q().stages[k]);
  $('foldline').setAttribute('d','M'+(320*f.p[0])+','+(320*f.p[1])+' L'+(320*f.q[0])+','+(320*f.q[1]));
- const sx=320*a[0],sy=320*a[1],dx=320*(b[0]-a[0]),dy=320*(b[1]-a[1]);
+ const start=centeredFlapGuide(f);
+ foldGuideStart=start;
+ const dx=320*(b[0]-a[0]),dy=320*(b[1]-a[1]);
  const len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,arrowLength=Math.min(73,len*.39);
- const ex=sx+ux*arrowLength,ey=sy+uy*arrowLength;
+ const sx=start.x,sy=start.y,ex=sx+ux*arrowLength,ey=sy+uy*arrowLength;
  $('foldarrow').setAttribute('d','M'+(sx+ux*14)+','+(sy+uy*14)+' L'+ex+','+ey);
  $('foldarrowtip').setAttribute('d','M'+(ex-ux*8-uy*4.5)+','+(ey-uy*8+ux*4.5)+' L'+ex+','+ey+' L'+(ex-ux*8+uy*4.5)+','+(ey-uy*8-ux*4.5));
  $('grabdot').setAttribute('cx',sx);$('grabdot').setAttribute('cy',sy);
@@ -225,10 +250,37 @@ function refreshUI(){let c=q(),stage=$('phaseLabel');$('undo').style.visibility=
   else if(phase==='result'){stage.textContent='FINISH  ·  できあがり';$('instruction').innerHTML='ひとつの切り方から、生まれた模様';$('mainbtn').textContent=idx===PUZZLES.length-1?'もう一度、最初から':'次の紙へ  →';$('mainbtn').disabled=false;}
   refreshMemory();
 }
-function soundUnlock(){unlocked=true;if(muted)return;try{let A=window.AudioContext||window.webkitAudioContext;if(!activeAudio&&A)activeAudio=new A();activeAudio?.resume?.().catch(()=>{});if(activeAudio&&!noiseBuf){let n=Math.ceil(activeAudio.sampleRate*.5);noiseBuf=activeAudio.createBuffer(1,n,activeAudio.sampleRate);let d=noiseBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1}}catch(e){}}
-function noise(duration=.12,vol=.035,freq=1600){if(!activeAudio||muted||!unlocked)return;let a=activeAudio,t=a.currentTime,source=a.createBufferSource(),f=a.createBiquadFilter(),gain=a.createGain();source.buffer=noiseBuf;f.type='bandpass';f.frequency.value=freq;f.Q.value=.65;gain.gain.setValueAtTime(.00001,t);gain.gain.exponentialRampToValueAtTime(vol,t+.012);gain.gain.exponentialRampToValueAtTime(.00001,t+duration);source.connect(f).connect(gain).connect(a.destination);source.start(t);source.stop(t+duration+.01)}
-function pluck(freq=480,vol=.012,sec=.1){if(!activeAudio||muted||!unlocked)return;let a=activeAudio,t=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*.91,t+sec);g.gain.setValueAtTime(.00001,t);g.gain.exponentialRampToValueAtTime(vol,t+.005);g.gain.exponentialRampToValueAtTime(.00001,t+sec);o.connect(g).connect(a.destination);o.start(t);o.stop(t+sec+.01)}
-function sfx(type){if(type==='fold'){noise(.19,.035,1100);pluck(235,.008,.095)}else if(type==='cut'){noise(.085,.031,1800);pluck(660,.007,.07)}else if(type==='choose'){noise(.035,.019,1750);pluck(390,.009,.075)}else if(type==='open'){noise(.115,.019,1220)}else if(type==='win'){pluck(523,.017,.28);setTimeout(()=>pluck(783,.012,.25),70)}}
+// Pure, fixed-pitch sine notes. No random noise, pitch glides, or
+// simultaneous clashing notes; success is a separated C-major arpeggio.
+function soundUnlock(){
+ unlocked=true;if(muted)return;
+ try{
+  const Audio=window.AudioContext||window.webkitAudioContext;
+  if(!activeAudio&&Audio)activeAudio=new Audio();
+  activeAudio?.resume?.().catch(()=>{});
+ }catch(e){}
+}
+function clearTone(freq,volume=.055,seconds=.095,delay=0){
+ if(!activeAudio||muted||!unlocked)return;
+ const ctx=activeAudio,start=ctx.currentTime+delay,osc=ctx.createOscillator(),gain=ctx.createGain();
+ osc.type='sine';osc.frequency.setValueAtTime(freq,start);
+ gain.gain.setValueAtTime(.0001,start);
+ gain.gain.exponentialRampToValueAtTime(volume,start+.007);
+ gain.gain.exponentialRampToValueAtTime(.0001,start+seconds);
+ osc.connect(gain).connect(ctx.destination);
+ osc.start(start);osc.stop(start+seconds+.012);
+}
+function sfx(type){
+ if(type==='fold')clearTone(392,.06,.105);
+ else if(type==='cut')clearTone(784,.058,.075);
+ else if(type==='choose')clearTone(659.25,.042,.06);
+ else if(type==='open')clearTone(523.25,.035,.09);
+ else if(type==='win'){
+  clearTone(523.25,.07,.105);
+  clearTone(659.25,.07,.105,.135);
+  clearTone(783.99,.078,.15,.27);
+ }
+}
 function tween(from,to,duration,fn){let token=++animationToken;return new Promise(resolve=>{let begin=performance.now();function tick(now){if(token!==animationToken)return resolve(false);let t=clamp((now-begin)/(reduced?Math.min(100,duration):duration));fn(from+(to-from)*ease(t));if(t<1)requestAnimationFrame(tick);else resolve(true)}requestAnimationFrame(tick)})}
 async function finishFold(progress){hold=true;let k=foldIdx,ok=await tween(progress,1,progress>.2?250:340,p=>{showFold(k,p);guideVisibility(false)});if(!ok)return;sfx('fold');foldIdx++;refreshMemory();await new Promise(r=>setTimeout(r,reduced?40:100));if(k+1!==foldIdx)return;hold=false; if(foldIdx>=q().folds.length)enterCut();else showCurrentFold();}
 async function rewindFold(progress){hold=true;let k=foldIdx,ok=await tween(progress,0,165,p=>showFold(k,p));hold=false;if(ok){showCurrentFold();guideVisibility(true)}}
@@ -293,7 +345,7 @@ function closeChapterPicker(){document.getElementById('chaptersOverlay').classLi
 
 function restart(n=idx){animationToken++;hold=false;gesture=null;idx=n;foldIdx=0;cutIdx=0;selected=-1;hintVisible=false;cutPieces=[];cutMaskPaths=[];maskHoles.setAttribute('d','');$('diffOver').setAttribute('d','');$('diffUnder').setAttribute('d','');$('level').textContent=`CH ${String(q().chapter+1).padStart(2,'0')} · LEVEL ${String(idx+1).padStart(3,'0')} · ${q().difficulty}`;$('title').textContent=q().title;$('count').textContent=`${String(idx+1).padStart(3,'0')} / ${String(PUZZLES.length)}`;$('bar').innerHTML=Array.from({length:25},(_,i)=>`<span class="${i===idx%25?'on':i<idx%25?'done':''}"></span>`).join('');foldOverlay.style.display='';cutOverlay.style.display='none';guideVisibility(true);$('preview').classList.remove('show');setPhase('fold');showCurrentFold()}
 function gestureStart(e){if(hold||!['fold','cut'].includes(phase))return;const root=rootCoords(e),p=camCoords(root),k=foldIdx;if(phase==='fold'){
- let f=q().folds[k],start={x:f.arrow[0][0]*320,y:f.arrow[0][1]*320};let near=distance(p,start)<112;const fpath=flap;let pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onFlap=false;try{onFlap=fpath.isPointInFill(pt)}catch(e){}
+ let f=q().folds[k],start=foldGuideStart||{x:f.arrow[0][0]*320,y:f.arrow[0][1]*320};let near=distance(p,start)<112;const fpath=flap;let pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onFlap=false;try{onFlap=fpath.isPointInFill(pt)}catch(e){}
  if(!near&&!onFlap)return;
  gesture={kind:'fold',id:e.pointerId,start:root,fold:k,p:0,initial:p};guideVisibility(false);
  }else{const segs=cutHitSegments[cutIdx]||[];const near=segs.some(s=>pointSegmentDistance(p,s.a,s.b)<38);const pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onRegion=false;try{onRegion=$('cutregion').isPointInFill(pt)}catch(e){}if(!near&&!onRegion)return;gesture={kind:'cut',id:e.pointerId,start:root,moved:false};}
