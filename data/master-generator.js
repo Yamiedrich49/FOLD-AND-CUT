@@ -1,6 +1,6 @@
 /* FOLD & CUT: deterministic 5–10-fold geometric generator. Do not edit individual folds without checking the inverse unfolding. */
 window.__generateMasterPuzzle = function generateMasterPuzzle(seed,foldCount=6){
- const EPS=1e-5,R=x=>+x.toFixed(2);let rng=(seed>>>0)||1;const random=()=>((rng=Math.imul(rng,1664525)+1013904223>>>0)/4294967296);
+ const EPS=1e-5,R=x=>+x.toFixed(3);let rng=(seed>>>0)||1;const random=()=>((rng=Math.imul(rng,1664525)+1013904223>>>0)/4294967296);
  const area=p=>p.reduce((s,a,i)=>{let b=p[(i+1)%p.length];return s+a[0]*b[1]-b[0]*a[1]},0)/2;
  const normalize=p=>area(p)<0?p.slice().reverse():p;
  const clean=p=>{const a=[];for(const x of p)if(!a.length||Math.hypot(x[0]-a.at(-1)[0],x[1]-a.at(-1)[1])>EPS)a.push(x);if(a.length>2&&Math.hypot(a[0][0]-a.at(-1)[0],a[0][1]-a.at(-1)[1])<EPS)a.pop();return a.length>=3&&Math.abs(area(a))>.01?a:[]};
