@@ -1,11 +1,12 @@
 # FOLD & CUT
 
-指で紙を折り、切り込みを入れ、広げたときの模様を予想する、スマートフォン向け空間認識パズルです。20章×25問、全500問の **MASTER 500 v8** を収録しています。
+指で紙を折り、切り込みを入れ、広げたときの模様を予想する、スマートフォン向け空間認識パズルです。20章×25問、全500問の **MASTER 500 v9** を収録しています。
 
 - ゲーム（GitHub Pages）: https://yamiedrich49.github.io/FOLD-AND-CUT/ （公開ページの動作は実機での確認が必要）
 - 開発引き継ぎ・設計方針: [docs/DEVELOPMENT_HANDOFF.md](docs/DEVELOPMENT_HANDOFF.md)
 - 問題品質の監査・不要な折り目の表示修正: [docs/QUALITY_AUDIT.md](docs/QUALITY_AUDIT.md)
-- 難易度の段階設計・誤答比較・やり直し: [docs/PROGRESSION_V8.md](docs/PROGRESSION_V8.md)
+- 最新の500問カリキュラム（1〜10回折り）と幾何エンジン: [docs/MASTER_500_V9.md](docs/MASTER_500_V9.md)
+- 旧v8の改善経緯: [docs/PROGRESSION_V8.md](docs/PROGRESSION_V8.md)
 
 ## 遊び方
 
@@ -18,4 +19,4 @@
 
 ## 開発について
 
-`index.html` と `data/` 以下の分割された問題・折り方データからなる静的Webアプリです。改修前に[開発引き継ぎ](docs/DEVELOPMENT_HANDOFF.md)を確認し、既存の500問と進捗を保持してください。
+`index.html` と `data/` 以下の分割された問題・折り方データ、上級問題生成エンジン `data/master-generator.js` からなる静的Webアプリです。改修前に[開発引き継ぎ](docs/DEVELOPMENT_HANDOFF.md)を確認し、既存の500問と進捗を保持してください。
