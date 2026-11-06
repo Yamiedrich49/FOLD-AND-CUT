@@ -4,6 +4,7 @@
 
 - ゲーム（GitHub Pages）: https://yamiedrich49.github.io/FOLD-AND-CUT/ （公開ページの動作は実機での確認が必要）
 - 開発引き継ぎ・設計方針: [docs/DEVELOPMENT_HANDOFF.md](docs/DEVELOPMENT_HANDOFF.md)
+- 問題品質の監査・不要な折り目の表示修正: [docs/QUALITY_AUDIT.md](docs/QUALITY_AUDIT.md)
 
 ## 遊び方
 
