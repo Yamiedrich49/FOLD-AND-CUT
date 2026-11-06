@@ -11,11 +11,28 @@ window.__generateMasterPuzzle = function generateMasterPuzzle(seed,foldCount=6){
  const inPoly=(poly,p)=>{let v=false;for(let i=0,j=poly.length-1;i<poly.length;j=i++){let a=poly[i],b=poly[j];if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])v=!v}return v};
  const bounds=p=>{let v=p.flat();return {x1:Math.min(...v.map(q=>q[0])),x2:Math.max(...v.map(q=>q[0])),y1:Math.min(...v.map(q=>q[1])),y2:Math.max(...v.map(q=>q[1]))}};
  const endpoints=l=>{let v=[],[nx,ny]=l.n;for(const x of [0,320])if(Math.abs(ny)>EPS){let y=(l.d-nx*x)/ny;if(y>=-1&&y<=321)v.push([x,y])}for(const y of [0,320])if(Math.abs(nx)>EPS){let x=(l.d-ny*y)/nx;if(x>=-1&&x<=321)v.push([x,y])}v=v.filter((p,i)=>v.findIndex(q=>Math.hypot(p[0]-q[0],p[1]-q[1])<1e-4)===i);return[v[0]||[0,0],v.at(-1)||[320,320]]};
- const newLine=(k,b)=>{let w=b.x2-b.x1,h=b.y2-b.y1,f=.29+(random()-.5)*.06;switch(k%8){case 0:case 4:return{n:[1,0],d:b.x2-f*w};case 1:case 5:return{n:[0,1],d:b.y2-f*h};case 2:case 6:return{n:[-1,0],d:-(b.x1+f*w)};default:return{n:[0,-1],d:-(b.y1+f*h)}}};
+ const newLine=(k,b,currentPieces)=>{
+  const fraction=.21+random()*.16,turn=(seed>>>3)%4;
+  // Mix axial, diagonal and corner folds. Use actual polygon vertices so
+  // the chosen crease always crosses the current sheet.
+  if(k>=4&&(seed+k)%4!==0){
+   const dirs=[[1,1],[1,-1],[-1,1],[-1,-1]],n=dirs[(seed+k*3)%4];
+   const projections=currentPieces.flatMap(p=>p.poly.map(v=>v[0]*n[0]+v[1]*n[1]));
+   const hi=Math.max(...projections),lo=Math.min(...projections);
+   return {n,d:hi-(hi-lo)*fraction};
+  }
+  const w=b.x2-b.x1,h=b.y2-b.y1;
+  switch((k+turn)%4){
+   case 0:return{n:[1,0],d:b.x2-fraction*w};
+   case 1:return{n:[0,1],d:b.y2-fraction*h};
+   case 2:return{n:[-1,0],d:-(b.x1+fraction*w)};
+   default:return{n:[0,-1],d:-(b.y1+fraction*h)};
+  }
+ };
  const original=[[0,0],[320,0],[320,320],[0,320]],n=Math.max(5,Math.min(10,foldCount));
  let pieces=[{poly:original,h:[]}],lines=[],folds=[],stages=[svgPolys([original])],foldMovie=[];
  for(let k=0;k<n;k++){
-  const line=newLine(k,bounds(pieces.map(p=>p.poly))),fixed=[],moving=[],next=[];
+  const line=newLine(k,bounds(pieces.map(p=>p.poly)),pieces),fixed=[],moving=[],next=[];
   for(const part of pieces){
    let a=clip(part.poly,line),b=clip(part.poly,line,true);
    if(a.length){fixed.push(a);next.push({poly:a,h:part.h.concat(0)})}
