@@ -201,7 +201,7 @@ function guideFold(k){
  $('foldarrow').setAttribute('d','M'+(sx+ux*14)+','+(sy+uy*14)+' L'+ex+','+ey);
  $('foldarrowtip').setAttribute('d','M'+(ex-ux*8-uy*4.5)+','+(ey-uy*8+ux*4.5)+' L'+ex+','+ey+' L'+(ex-ux*8+uy*4.5)+','+(ey-uy*8-ux*4.5));
  $('grabdot').setAttribute('cx',sx);$('grabdot').setAttribute('cy',sy);
- foldOverlay.style.display='';cutOverlay.style.display='none';
+ foldOverlay.style.display='';cutOverlay.style.display='none';guideVisibility(true);
 }
 function refreshMemory(){
   let c=q(),svgContent='',paperLines='';
