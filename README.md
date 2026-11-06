@@ -1,10 +1,11 @@
 # FOLD & CUT
 
-指で紙を折り、切り込みを入れ、広げたときの模様を予想する、スマートフォン向け空間認識パズルです。20章×25問、全500問の **MASTER 500 v7** を収録しています。
+指で紙を折り、切り込みを入れ、広げたときの模様を予想する、スマートフォン向け空間認識パズルです。20章×25問、全500問の **MASTER 500 v8** を収録しています。
 
 - ゲーム（GitHub Pages）: https://yamiedrich49.github.io/FOLD-AND-CUT/ （公開ページの動作は実機での確認が必要）
 - 開発引き継ぎ・設計方針: [docs/DEVELOPMENT_HANDOFF.md](docs/DEVELOPMENT_HANDOFF.md)
 - 問題品質の監査・不要な折り目の表示修正: [docs/QUALITY_AUDIT.md](docs/QUALITY_AUDIT.md)
+- 難易度の段階設計・誤答比較・やり直し: [docs/PROGRESSION_V8.md](docs/PROGRESSION_V8.md)
 
 ## 遊び方
 
