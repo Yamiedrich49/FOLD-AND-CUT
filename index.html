@@ -81,6 +81,8 @@
   .app[data-phase="choice"] .option svg{max-height:128px}
 }
 .app[data-phase="cut"] .paperzone{cursor:pointer}
+/* Paint the filled paper AFTER the stroke, concealing internal edges where polygons join. */
+.option svg path,.preview svg path,.resultchip svg path,.app[data-phase="result"] .paper-base{paint-order:stroke fill}
 .option{border-color:#c9dcda;}
 .option:focus-visible{outline:2px solid #09a9b8;outline-offset:1px}
 </style></head><body>
@@ -163,6 +165,56 @@
 const FOLD_TEMPLATES=JSON.parse(window.__FC_FOLDS.join(''));
 const CHAPTERS=[{"name":"ひらめく最初の25問","about":"最初から違う折り方・切り方に触れる"},{"name":"2つの切り口","about":"2か所切るとどう重なる？"},{"name":"縦と横の連携","about":"2つの折り目を順番に追う"},{"name":"少しずれた紙","about":"左右非対称な折り方を扱う"},{"name":"三角の入り口","about":"小さな三角折りを味方にする"},{"name":"鏡と回転","about":"直線と斜めの複合を考える"},{"name":"折る順番の違い","about":"同じ方向でも順序で結果が変わる"},{"name":"不規則な折り目","about":"端をずらして折ることに慣れる"},{"name":"不均一な重なり","about":"複数層を追いかける"},{"name":"三角の応用","about":"斜め折りを取り入れた複合"},{"name":"複合と復習","about":"既習の折りを新しい順序で組み合わせる"},{"name":"大きな対角線","about":"正方形全体を三角形に折る"},{"name":"三角の重ね技","about":"斜めの方向感覚を育てる"},{"name":"三回折りの道","about":"逆順の展開を3回たどる"},{"name":"切り抜きの組み合わせ","about":"3回折り＋複数カット"},{"name":"形を読み取る","about":"三角・四角・山形の切り込み"},{"name":"折り目の交差","about":"斜めと直線が交わる"},{"name":"複雑な切り紙","about":"3〜4回折り、3か所カット"},{"name":"空間認識エキスパート","about":"不均一・斜め・複合を自在に扱う"},{"name":"マスター試験","about":"これまでの技術をすべて組み合わせる"}];
 const PUZZLES=JSON.parse(window.__FC_PUZZLES.join(''));
+// Level quality audit: if an unfolded shape is identical to cutting an
+// UNFOLDED square, the fold taught nothing. 20 such cases in levels 1–100
+// are upgraded to rotated/reflected versions of verified fold-dependent tasks.
+// Existing 500 source records, indices and local progress remain unchanged.
+const MEANINGFUL_EARLY_VARIANTS={
+ 2:[25,3],7:[22,4],11:[58,4],15:[53,4],19:[5,4],
+ 23:[9,4],30:[6,3],37:[13,2],40:[28,1],44:[17,1],
+ 47:[26,4],51:[81,4],60:[84,1],65:[77,2],72:[14,1],
+ 74:[21,3],86:[100,3],88:[67,1],91:[79,4],95:[56,4]
+};
+function rotateFoldPoint(v,kind,size=320){
+ const x=v[0],y=v[1];
+ if(kind===1)return [size-x,y];         // mirror left-right
+ if(kind===2)return [x,size-y];         // mirror up-down
+ if(kind===3)return [size-x,size-y];    // half turn
+ return [size-y,x];                     // quarter turn
+}
+function rotateSvgPath(path,kind){
+ return path.replace(/([ML])\s*(-?\d+(?:\.\d+)?),\s*(-?\d+(?:\.\d+)?)/g,(_,cmd,x,y)=>{
+  const [tx,ty]=rotateFoldPoint([+x,+y],kind);
+  return cmd+tx.toFixed(2)+','+ty.toFixed(2);
+ });
+}
+function rotateGeometry(item,kind){
+ if(typeof item==='string')return /^M\s*-?\d/.test(item)?rotateSvgPath(item,kind):item;
+ if(Array.isArray(item))return item.map(v=>rotateGeometry(v,kind));
+ if(item&&typeof item==='object')return Object.fromEntries(Object.entries(item).map(([k,v])=>[k,rotateGeometry(v,kind)]));
+ return item;
+}
+for(const [num,change] of Object.entries(MEANINGFUL_EARLY_VARIANTS)){
+ const stage=+num-1,source=PUZZLES[change[0]-1],original=PUZZLES[stage],kind=change[1];
+ const rebuilt=rotateGeometry(source,kind);
+ const template=FOLD_TEMPLATES[source.foldTemplate];
+ rebuilt.folds=template.folds.map(f=>({
+  ...f,label:'青い点から矢印へ紙を折る',
+  p:rotateFoldPoint(f.p,kind,1),q:rotateFoldPoint(f.q,kind,1),
+  arrow:f.arrow.map(p=>rotateFoldPoint(p,kind,1))
+ }));
+ rebuilt.foldMovie=rotateGeometry(template.foldMovie,kind);
+ rebuilt.stages=rotateGeometry(template.stages,kind);
+ rebuilt.camera=template.camera;
+ rebuilt.chapter=original.chapter;
+ rebuilt.difficulty=original.difficulty;
+ rebuilt.title=original.title;
+ rebuilt.hint='紙の重なった部分を切ったら、広げるとどこに増える？';
+ rebuilt.explanation='折り目を戻すと、切り口の位置が増えて見えるよ。';
+ rebuilt.intro=original.intro;
+ rebuilt.qualityUpgraded=true;
+ PUZZLES[stage]=rebuilt;
+}
 const $=id=>document.getElementById(id);
 const app=$('app'),zone=$('paperzone'),svg=$('stage'),camera=$('camera'),base=$('base'),flap=$('flap'),stack=$('paperStack');
 const foldOverlay=$('foldOverlay'),cutOverlay=$('cutOverlay'),maskHoles=$('maskHoles');
@@ -297,7 +349,7 @@ function parseCuts(){let s=q().cutPath;cutPieces=s.match(/M[^M]+/g)||[s];cutPiec
 }
 function enterCut(){animationToken++;setPhase('cut');hold=false;foldOverlay.style.display='none';cutOverlay.style.display='';guideVisibility(false);paperStatic(q().stages[q().folds.length]);setCamera(q().camera[q().camera.length-1]);maskHoles.setAttribute('d','');parseCuts();showCutGuide();}
 function showCutGuide(){if(cutIdx>=cutPieces.length){enterChoice();return}let piece=cutPieces[cutIdx];$('cutregion').setAttribute('d',piece);$('cutline').setAttribute('d',cutLines[cutIdx]);$('scratch').setAttribute('d','');refreshUI();}
-function chooseView(d){return `<svg viewBox="-9 -9 338 338" preserveAspectRatio="xMidYMid meet"><path d="${d}" fill="#fffdf7" fill-rule="evenodd" stroke="#91acb2" stroke-width="3.5" stroke-linejoin="round"/></svg>`}
+function chooseView(d){return `<svg viewBox="-9 -9 338 338" preserveAspectRatio="xMidYMid meet"><path d="${d}" fill="#fffdf7" fill-rule="evenodd" stroke="#91acb2" stroke-width="3.5" stroke-linejoin="round" style="paint-order:stroke fill"/></svg>`}
 function renderOptions(){let n=q().choices.length;const container=$('options');container.className='options '+(n===2?'two':n===3?'three':n===4?'four':n===6?'six':'eight');$('choiceCount').textContent=n+'択 · 長押しで拡大';container.innerHTML=q().choices.map((d,i)=>`<button class="option" data-i="${i}" aria-label="選択肢${letters[i]}"><span class="letter">${letters[i]}</span>${chooseView(d)}</button>`).join('');
  container.querySelectorAll('button').forEach((btn,i)=>{let timer,startX=0,startY=0;btn.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY;timer=setTimeout(()=>{if(phase==='choice'){$('preview').innerHTML=chooseView(q().choices[i]);$('preview').classList.add('show')}},410)});btn.addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-startX,e.clientY-startY)>12)clearTimeout(timer)});['pointerup','pointercancel','pointerleave'].forEach(evt=>btn.addEventListener(evt,()=>{clearTimeout(timer);$('preview').classList.remove('show')}));btn.addEventListener('click',()=>select(i))});}
 function select(i){if(phase!=='choice')return;selected=i;document.querySelectorAll('.option').forEach((btn,j)=>btn.classList.toggle('selected',i===j));sfx('choose');refreshUI()}
