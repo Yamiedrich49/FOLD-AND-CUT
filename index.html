@@ -24,9 +24,9 @@
 .guide-crease{stroke:#64aeb2;stroke-width:1.4;stroke-linecap:round;opacity:.75;vector-effect:non-scaling-stroke}
 .guide-arrow{fill:none;stroke:#089cac;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.83;vector-effect:non-scaling-stroke}
 .grab-dot{fill:#08a7b4;stroke:#fff;stroke-width:1.7;filter:url(#smallShadow);vector-effect:non-scaling-stroke}
-.paper-cutline{fill:none;stroke:#d68f6d;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
-.paper-cut-region{fill:#f4bf9b;fill-opacity:.3;stroke:#cc9576;stroke-width:1.15;vector-effect:non-scaling-stroke}
-.paper-scratch{fill:none;stroke:#c9824d;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.paper-cutline{display:none}
+.paper-cut-region{fill:#e8b38a;fill-opacity:.36;stroke:#c8916b;stroke-width:1.1;vector-effect:non-scaling-stroke}
+.paper-scratch{display:none}
 .paper-cut-finished{fill:#f2f7f6;stroke:#c2cbca;stroke-width:.7;opacity:.8}
 .crease-memory{position:absolute;right:57px;top:2px;transform:scale(.76);transform-origin:top right;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px;border:1px solid #dfebea;border-radius:12px;background:#ffffffd9;box-shadow:0 4px 12px #cdd9d934;pointer-events:none;z-index:3;transition:opacity .25s}.crease-memory .tiny{font-size:8px;letter-spacing:.07em;font-weight:850;color:#7fa4a6}.crease-memory svg{width:59px;height:59px}.crease-memory rect{fill:#fffdf7;stroke:#9bbabd;stroke-width:1.5}
 .scene-foot{position:relative;z-index:6;display:flex;align-items:center;justify-content:center;padding:0 8px 8px;height:45px;min-height:45px;flex:0 0 45px;text-align:center}.instruction{font-size:12px;font-weight:800;color:#47777d;letter-spacing:.005em}.instruction em{font-style:normal;color:#07a6b9}
@@ -215,6 +215,33 @@ for(const [num,change] of Object.entries(MEANINGFUL_EARLY_VARIANTS)){
  rebuilt.qualityUpgraded=true;
  PUZZLES[stage]=rebuilt;
 }
+// Progressive curriculum: stable-sort by actual fold count (1 → 2 → 3 → 4).
+// A player never unexpectedly returns to a simpler folding depth.
+// Keep a reversible index map for existing v7 progress migration.
+const ORIGINAL_PUZZLE_ORDER=PUZZLES.slice();
+const PROGRESSION_ORDER=Array.from({length:PUZZLES.length},(_,i)=>i)
+ .sort((a,b)=>(ORIGINAL_PUZZLE_ORDER[a].foldsCount-ORIGINAL_PUZZLE_ORDER[b].foldsCount)||(a-b));
+const LEGACY_TO_PROGRESS=new Array(PUZZLES.length);
+PROGRESSION_ORDER.forEach((oldIndex,newIndex)=>{LEGACY_TO_PROGRESS[oldIndex]=newIndex});
+PUZZLES.splice(0,PUZZLES.length,...PROGRESSION_ORDER.map(i=>ORIGINAL_PUZZLE_ORDER[i]));
+const FOLD_CURRICULUM_COUNT={1:0,2:0,3:0,4:0};
+const CURRICULUM_LABELS={
+ 1:['一折りのはじまり','ひと折りの鏡','穴の位置を読む','一折りの工夫','一折りの完成'],
+ 2:['二折りへの一歩','ふたつの対称','折る順番の秘密','重なった紙','二折りの応用','位置と向き','鏡の組み合わせ','二折りの探究','二折りの総合','二折りマスター'],
+ 3:['三折りへの挑戦','三段階の展開','折り目の交差','三折りマスター'],
+ 4:['四折りへの挑戦','重なりの達人','切り紙マスター']
+};
+const newChapters=Array.from({length:20},(_,i)=>{
+ const band=PUZZLES.slice(i*25,(i+1)*25);
+ const first=band[0].foldsCount,last=band[band.length-1].foldsCount;
+ FOLD_CURRICULUM_COUNT[last]=(FOLD_CURRICULUM_COUNT[last]||0)+1;
+ const label=(FOLD_CURRICULUM_COUNT[last]-1);
+ const nickname=(CURRICULUM_LABELS[last]||[])[label]||'折り紙の総合練習';
+ return {name:first===last?nickname:`${first}回から${last}回折りへ`,
+  about:first===last?`${first}回折りをじっくり身につける · 少しずつ切り方も発展`:`折り方を一段階増やして、新しい対称を見つけよう`};
+});
+CHAPTERS.splice(0,CHAPTERS.length,...newChapters);
+PUZZLES.forEach((p,i)=>{p.chapter=Math.floor(i/25)});
 const $=id=>document.getElementById(id);
 const app=$('app'),zone=$('paperzone'),svg=$('stage'),camera=$('camera'),base=$('base'),flap=$('flap'),stack=$('paperStack');
 const foldOverlay=$('foldOverlay'),cutOverlay=$('cutOverlay'),maskHoles=$('maskHoles');
@@ -348,7 +375,7 @@ function parseCuts(){let s=q().cutPath;cutPieces=s.match(/M[^M]+/g)||[s];cutPiec
  judge.remove();cutIdx=0;cutMaskPaths=[];
 }
 function enterCut(){animationToken++;setPhase('cut');hold=false;foldOverlay.style.display='none';cutOverlay.style.display='';guideVisibility(false);paperStatic(q().stages[q().folds.length]);setCamera(q().camera[q().camera.length-1]);maskHoles.setAttribute('d','');parseCuts();showCutGuide();}
-function showCutGuide(){if(cutIdx>=cutPieces.length){enterChoice();return}let piece=cutPieces[cutIdx];$('cutregion').setAttribute('d',piece);$('cutline').setAttribute('d',cutLines[cutIdx]);$('scratch').setAttribute('d','');refreshUI();}
+function showCutGuide(){if(cutIdx>=cutPieces.length){enterChoice();return}let piece=cutPieces[cutIdx];$('cutregion').setAttribute('d',piece);$('cutline').setAttribute('d','');$('scratch').setAttribute('d','');refreshUI();}
 function chooseView(d){return `<svg viewBox="-9 -9 338 338" preserveAspectRatio="xMidYMid meet"><path d="${d}" fill="#fffdf7" fill-rule="evenodd" stroke="#91acb2" stroke-width="3.5" stroke-linejoin="round" style="paint-order:stroke fill"/></svg>`}
 function renderOptions(){let n=q().choices.length;const container=$('options');container.className='options '+(n===2?'two':n===3?'three':n===4?'four':n===6?'six':'eight');$('choiceCount').textContent=n+'択 · 長押しで拡大';container.innerHTML=q().choices.map((d,i)=>`<button class="option" data-i="${i}" aria-label="選択肢${letters[i]}"><span class="letter">${letters[i]}</span>${chooseView(d)}</button>`).join('');
  container.querySelectorAll('button').forEach((btn,i)=>{let timer,startX=0,startY=0;btn.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY;timer=setTimeout(()=>{if(phase==='choice'){$('preview').innerHTML=chooseView(q().choices[i]);$('preview').classList.add('show')}},410)});btn.addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-startX,e.clientY-startY)>12)clearTimeout(timer)});['pointerup','pointercancel','pointerleave'].forEach(evt=>btn.addEventListener(evt,()=>{clearTimeout(timer);$('preview').classList.remove('show')}));btn.addEventListener('click',()=>select(i))});}
@@ -376,11 +403,33 @@ function showResult(){saveMasterResult();setPhase('result');let right=selected==
 
 // Master 500 — local, offline progress; the user can revisit any level.
 let masterSave={completed:{},last:0};
-try{const raw=localStorage.getItem('foldcut_master500_v7')||localStorage.getItem('foldcut_master500_v6');if(raw){let p=JSON.parse(raw);if(p&&typeof p==='object')masterSave=p}}catch(e){}
+const PROGRESS_KEY='foldcut_master500_v8';
+try{
+ const current=localStorage.getItem(PROGRESS_KEY);
+ if(current){
+  const data=JSON.parse(current);
+  if(data&&typeof data==='object')masterSave={completed:data.completed||{},last:data.last||0};
+ }else{
+  const old=localStorage.getItem('foldcut_master500_v7')||localStorage.getItem('foldcut_master500_v6');
+  if(old){
+   const data=JSON.parse(old);
+   if(data&&typeof data==='object'){
+    const migrated={};
+    for(const [n,v] of Object.entries(data.completed||{})){
+     const index=LEGACY_TO_PROGRESS[Number(n)-1];
+     if(Number.isInteger(index))migrated[String(index+1)]=v;
+    }
+    const former=Math.min(499,Math.max(0,Number(data.last)||0));
+    masterSave={completed:migrated,last:LEGACY_TO_PROGRESS[former]??0};
+    localStorage.setItem(PROGRESS_KEY,JSON.stringify(masterSave));
+   }
+  }
+ }
+}catch(e){}
 function saveMasterResult(){
  try{const k=String(idx+1),prev=masterSave.completed[k]||{attempts:0,perfect:false};
   masterSave.completed[k]={attempts:prev.attempts+1,passed:prev.passed||(selected===q().correct),perfect:prev.perfect||(selected===q().correct&&!hintVisible)};
-  masterSave.last=Math.max(masterSave.last,idx+1);localStorage.setItem('foldcut_master500_v7',JSON.stringify(masterSave));}
+  masterSave.last=Math.max(masterSave.last,idx+1);localStorage.setItem(PROGRESS_KEY,JSON.stringify(masterSave));}
  catch(e){}
 }
 function openChapterPicker(){
