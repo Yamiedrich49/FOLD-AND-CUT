@@ -306,7 +306,7 @@ function gestureEnd(e){if(!gesture||gesture.id!==e.pointerId)return;let g=gestur
  if(g.p>=.48)finishFold(g.p);else rewindFold(g.p);
  }else{if(!g.moved&&distance(rootCoords(e),g.start)<18)cutWithTap();}
  e.preventDefault();}
-zone.addEventListener('pointerdown',gestureStart);zone.addEventListener('pointermove',gestureMove);zone.addEventListener('pointerup',gestureEnd);zone.addEventListener('pointercancel',()=>{gesture=null;zone.classList.remove('dragging')});
+zone.addEventListener('pointerdown',gestureStart);zone.addEventListener('pointermove',gestureMove);zone.addEventListener('pointerup',gestureEnd);zone.addEventListener('pointercancel',()=>{const g=gesture;gesture=null;zone.classList.remove('dragging');if(g?.kind==='fold'&&!hold)rewindFold(g.p)});
 $('undo').addEventListener('click',()=>{if(hold||phase==='unfold')return;if(phase==='choice'){restart(idx);return;}if(phase==='fold'&&foldIdx>0){animationToken++;foldIdx--;hold=false;guideVisibility(true);showCurrentFold();sfx('choose');}else if(phase==='cut'){if(cutIdx>0){cutIdx--;cutMaskPaths.pop();maskHoles.setAttribute('d',cutMaskPaths.join(' '));showCutGuide();}else{animationToken++;foldIdx=q().folds.length-1;cutOverlay.style.display='none';foldOverlay.style.display='';setPhase('fold');showCurrentFold();}}});
 $('count').addEventListener('click',openChapterPicker);
 $('mainbtn').addEventListener('click',()=>{soundUnlock();if(phase==='choice')unfold();else if(phase==='result')restart((idx+1)%PUZZLES.length)});
