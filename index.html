@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="theme-color" content="#F5F7F5"/>
-<title>FOLD & CUT · Master 500 · Clear Choices</title>
+<title>FOLD & CUT · Master 500 · Tactile Update</title>
 <style>
 :root{--ink:#23454b;--muted:#819498;--teal:#06aabc;--teald:#008b9f;--line:#dce6e5;--paper:#fffdf7;--bg:#f6f8f6;--soft:#ebf4f3;--orange:#dea368}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;background:var(--bg);color:var(--ink)}button{font:inherit;cursor:pointer}button:disabled{cursor:default}button:focus-visible{outline:3px solid #2cadbd;outline-offset:2px}
@@ -19,13 +19,13 @@
 .stage{display:block;width:100%;height:100%;touch-action:none;overflow:visible}.stage *{pointer-events:none}
 .paper-base{fill-rule:evenodd;fill:var(--paper);stroke:#7c9697;stroke-width:1.15;stroke-linejoin:round;filter:url(#paperShadow)}
 .paper-flap{fill-rule:evenodd;fill:#f2fbfa;stroke:#8eb8ba;stroke-width:1.3;stroke-linejoin:round;filter:url(#flapShadow)}
-#existingCreases path{fill:none;stroke:#739d9c;stroke-width:1.15;stroke-linecap:round;stroke-dasharray:4 4;vector-effect:non-scaling-stroke;opacity:.64}
-.paper-ridge{fill:none;stroke:#9cb9b9;stroke-width:1.3;stroke-linecap:round;stroke-dasharray:1.5 3;opacity:.8;vector-effect:non-scaling-stroke}
-.guide-crease{stroke:#4caab3;stroke-width:1.6;stroke-dasharray:5 7;stroke-linecap:round;opacity:.8;vector-effect:non-scaling-stroke}
-.guide-arrow{fill:none;stroke:#00acbb;stroke-width:3.2;stroke-linecap:round;stroke-dasharray:6 7;opacity:.77;vector-effect:non-scaling-stroke}
-.grab-ring{fill:#fff;stroke:#01adbf;stroke-width:4;filter:url(#smallShadow);vector-effect:non-scaling-stroke}.grab-dot{fill:#00aab9}.grab-halo{fill:#8ee4e9;opacity:.18}
-.paper-cutline{fill:none;stroke:#dc976b;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 5;vector-effect:non-scaling-stroke}
-.paper-cut-region{fill:#f7caa5;fill-opacity:.42;stroke:#d89465;stroke-width:1.2;stroke-dasharray:3 4;vector-effect:non-scaling-stroke}
+#existingCreases path{fill:none;stroke:#739d9c;stroke-width:1.05;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.45}
+.paper-ridge{fill:none;stroke:#9cb9b9;stroke-width:1.1;stroke-linecap:round;opacity:.55;vector-effect:non-scaling-stroke}
+.guide-crease{stroke:#64aeb2;stroke-width:1.4;stroke-linecap:round;opacity:.75;vector-effect:non-scaling-stroke}
+.guide-arrow{fill:none;stroke:#089cac;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.83;vector-effect:non-scaling-stroke}
+.grab-dot{fill:#08a7b4;stroke:#fff;stroke-width:1.7;filter:url(#smallShadow);vector-effect:non-scaling-stroke}
+.paper-cutline{fill:none;stroke:#d68f6d;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+.paper-cut-region{fill:#f4bf9b;fill-opacity:.3;stroke:#cc9576;stroke-width:1.15;vector-effect:non-scaling-stroke}
 .paper-scratch{fill:none;stroke:#c9824d;stroke-width:5;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke}
 .paper-cut-finished{fill:#f2f7f6;stroke:#c2cbca;stroke-width:.7;opacity:.8}
 .crease-memory{position:absolute;right:57px;top:2px;transform:scale(.76);transform-origin:top right;display:flex;flex-direction:column;align-items:center;gap:2px;padding:7px;border:1px solid #dfebea;border-radius:12px;background:#ffffffd9;box-shadow:0 4px 12px #cdd9d934;pointer-events:none;z-index:3;transition:opacity .25s}.crease-memory .tiny{font-size:8px;letter-spacing:.07em;font-weight:850;color:#7fa4a6}.crease-memory svg{width:59px;height:59px}.crease-memory rect{fill:#fffdf7;stroke:#9bbabd;stroke-width:1.5}
@@ -80,6 +80,7 @@
   .app[data-phase="choice"] .choicepanel{flex:0 0 236px;height:236px}
   .app[data-phase="choice"] .option svg{max-height:128px}
 }
+.app[data-phase="cut"] .paperzone{cursor:pointer}
 .option{border-color:#c9dcda;}
 .option:focus-visible{outline:2px solid #09a9b8;outline-offset:1px}
 </style></head><body>
@@ -88,11 +89,11 @@
 <div class="lesson"><div><div class="label" id="level">LEVEL 01 · 体験</div><h1 id="title">真ん中の一切り</h1></div><button class="count" id="count" type="button" aria-label="ステージを選択">001 / 500</button></div><div class="bar" id="bar"></div>
 <div class="content">
 <section class="scene" aria-label="折り紙の操作画面"><div class="scene-head"><div class="phasebadge" id="phaseLabel">FOLD · 1 / 2</div><button class="scene-undo" id="undo" aria-label="前の折りに戻る">↶ 戻す</button></div>
-<div class="paperzone" id="paperzone" role="application" aria-label="紙の青い部分を指で矢印の方向へなぞって折ります"><svg class="stage" id="stage" viewBox="-22 -22 364 364" preserveAspectRatio="xMidYMid meet">
+<div class="paperzone" id="paperzone" role="application" aria-label="紙を矢印の方向へ指で折ります。切り取りはタップします"><svg class="stage" id="stage" viewBox="-22 -22 364 364" preserveAspectRatio="xMidYMid meet">
 <defs><filter id="paperShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="4" stdDeviation="4.5" flood-color="#64827f" flood-opacity=".24"/></filter><filter id="flapShadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="2.5" stdDeviation="2.4" flood-color="#6c9796" flood-opacity=".29"/></filter><filter id="smallShadow" x="-70%" y="-70%" width="240%" height="240%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-color="#418f95" flood-opacity=".35"/></filter>
 <clipPath id="foldShape" clipPathUnits="userSpaceOnUse"><path id="clipFoldPath" d=""/></clipPath><mask id="holesMask" maskUnits="userSpaceOnUse" x="-100" y="-100" width="520" height="520"><rect x="-100" y="-100" width="520" height="520" fill="white"/><path id="maskHoles" fill="black" d=""/></mask></defs>
 <g id="camera"><rect id="paperFootprint" x="0" y="0" width="320" height="320" rx=".8" fill="none" stroke="#b6cecd" stroke-width="1.1" stroke-dasharray="4 7" opacity=".42"/><g id="paperStack" mask="url(#holesMask)"><path class="paper-base" id="base"/><path class="paper-flap" id="flap"/><g id="existingCreases" clip-path="url(#foldShape)"></g></g>
-<g id="foldOverlay"><path class="paper-ridge" id="ridge" clip-path="url(#foldShape)"/><path class="guide-crease" id="foldline" clip-path="url(#foldShape)"/><path class="guide-arrow" id="foldarrow"/><circle class="grab-halo" id="grabhalo" r="15"/><circle class="grab-ring" id="grab" r="9"/><circle class="grab-dot" id="grabdot" r="2.3"/></g>
+<g id="foldOverlay"><path class="paper-ridge" id="ridge" clip-path="url(#foldShape)"/><path class="guide-crease" id="foldline" clip-path="url(#foldShape)"/><path class="guide-arrow" id="foldarrow"/><path class="guide-arrow" id="foldarrowtip"/><circle class="grab-dot" id="grabdot" r="4.5"/></g>
 <g id="cutOverlay" style="display:none"><path class="paper-cut-region" id="cutregion"/><path class="paper-cutline" id="cutline"/><path class="paper-scratch" id="scratch"/></g>
 <path id="diffOver" fill="#f3b664" opacity=".68"/><path id="diffUnder" fill="#e77c8d" opacity=".7"/>
 </g></svg><div class="preview" id="preview"></div></div>
@@ -170,7 +171,7 @@ const ease=t=>1-Math.pow(1-t,3);
 const letters='ABCDEFGH';
 const reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 let idx=0,foldIdx=0,cutIdx=0,selected=-1,phase='fold',hold=false,gesture=null,animationToken=0,muted=false,activeAudio=null,noiseBuf=null,unlocked=false;
-let hintVisible=false;let cutPieces=[],cutLines=[],cutCentroids=[],cutMaskPaths=[],unfoldReplay=false;
+let hintVisible=false;let cutPieces=[],cutLines=[],cutCentroids=[],cutHitSegments=[],cutMaskPaths=[],unfoldReplay=false;
 function q(){let q=PUZZLES[idx];if(!q.folds){const t=FOLD_TEMPLATES[q.foldTemplate];q.folds=t.folds;q.foldMovie=t.foldMovie;q.stages=t.stages;q.camera=t.camera;}return q;}
 function setPhase(p){phase=p;app.dataset.phase=p;refreshUI()}
 function setCamera(c){camera.removeAttribute('transform')}
@@ -190,7 +191,18 @@ function rootCoords(e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;
 function camCoords(r,atStep=foldIdx){return {x:r.x,y:r.y}}
 function sc(f,k){return {x:f[0]*320,y:f[1]*320}}
 function distance(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-function guideFold(k){let f=q().folds[k],a=f.arrow[0],b=f.arrow[1];$('clipFoldPath').setAttribute('d',q().stages[k]);$('foldline').setAttribute('d',`M${320*f.p[0]},${320*f.p[1]} L${320*f.q[0]},${320*f.q[1]}`);$('foldarrow').setAttribute('d',`M${320*a[0]},${320*a[1]} L${320*b[0]},${320*b[1]}`);for(let n of ['grabhalo','grab','grabdot']){$(n).setAttribute('cx',320*a[0]);$(n).setAttribute('cy',320*a[1]);}foldOverlay.style.display='';cutOverlay.style.display='none';}
+function guideFold(k){
+ const f=q().folds[k],a=f.arrow[0],b=f.arrow[1];
+ $('clipFoldPath').setAttribute('d',q().stages[k]);
+ $('foldline').setAttribute('d','M'+(320*f.p[0])+','+(320*f.p[1])+' L'+(320*f.q[0])+','+(320*f.q[1]));
+ const sx=320*a[0],sy=320*a[1],dx=320*(b[0]-a[0]),dy=320*(b[1]-a[1]);
+ const len=Math.hypot(dx,dy)||1,ux=dx/len,uy=dy/len,arrowLength=Math.min(73,len*.39);
+ const ex=sx+ux*arrowLength,ey=sy+uy*arrowLength;
+ $('foldarrow').setAttribute('d','M'+(sx+ux*14)+','+(sy+uy*14)+' L'+ex+','+ey);
+ $('foldarrowtip').setAttribute('d','M'+(ex-ux*8-uy*4.5)+','+(ey-uy*8+ux*4.5)+' L'+ex+','+ey+' L'+(ex-ux*8+uy*4.5)+','+(ey-uy*8-ux*4.5));
+ $('grabdot').setAttribute('cx',sx);$('grabdot').setAttribute('cy',sy);
+ foldOverlay.style.display='';cutOverlay.style.display='none';
+}
 function refreshMemory(){
   let c=q(),svgContent='',paperLines='';
   for(let i=0;i<foldIdx;i++){
@@ -206,8 +218,8 @@ function refreshMemory(){
 }
 function showCurrentFold(){if(foldIdx>=q().folds.length){enterCut();return}showFold(foldIdx,0);guideFold(foldIdx);refreshUI();}
 function refreshUI(){let c=q(),stage=$('phaseLabel');$('undo').style.visibility=(phase==='fold'&&foldIdx>0||phase==='cut'&&cutIdx===0||phase==='cut'&&cutIdx>0||phase==='choice')?'visible':'hidden';$('undo').textContent=phase==='choice'?'↶ 折り直す':'↶ 戻す';
-  if(phase==='fold'){stage.textContent=`FOLD  ·  ${foldIdx+1} / ${c.folds.length}`;$('instruction').innerHTML=`${c.folds[foldIdx].label}<br><em>青いところから、矢印へスッ</em>`;$('footHint').textContent='紙の動きが指に合わせて変わります';}
-  else if(phase==='cut'){stage.textContent=`CUT  ·  ${cutIdx+1} / ${cutPieces.length}`;$('instruction').innerHTML=`切り取り線を <em>シャッと、なぞろう</em>`;$('footHint').textContent='オレンジの線の近くを指でなぞって切ろう';}
+  if(phase==='fold'){stage.textContent=`FOLD  ·  ${foldIdx+1} / ${c.folds.length}`;$('instruction').innerHTML=`${c.folds[foldIdx].label}<br><em>青い点から、矢印へスッ</em>`;$('footHint').textContent='紙の動きが指に合わせて変わります';}
+  else if(phase==='cut'){stage.textContent=`CUT  ·  ${cutIdx+1} / ${cutPieces.length}`;$('instruction').innerHTML=`色のついた切り込みを <em>タップ</em>`;$('footHint').textContent='オレンジの部分を軽くタップして切ろう';}
   else if(phase==='choice'){stage.textContent='THINK  ·  頭の中でひらく';$('instruction').innerHTML=hintVisible?('<span class="hinttext">'+(q().hint||'紙を逆順に開くイメージで考えよう。')+'</span>'):'折り目を手がかりに、完成形を予想 <button class="hintbtn" id="hintbtn" type="button">ヒントを見る</button>';if(!hintVisible){$('hintbtn').onclick=()=>{hintVisible=true;refreshUI();sfx('choose')}}$('mainbtn').textContent=selected<0?'模様を選んでください':'この模様で、ひらく';$('mainbtn').disabled=selected<0;}
   else if(phase==='unfold'){stage.textContent='UNFOLD  ·  紙をひらく';$('instruction').innerHTML='折り目が戻るところを、見てみよう';}
   else if(phase==='result'){stage.textContent='FINISH  ·  できあがり';$('instruction').innerHTML='ひとつの切り方から、生まれた模様';$('mainbtn').textContent=idx===PUZZLES.length-1?'もう一度、最初から':'次の紙へ  →';$('mainbtn').disabled=false;}
@@ -216,17 +228,18 @@ function refreshUI(){let c=q(),stage=$('phaseLabel');$('undo').style.visibility=
 function soundUnlock(){unlocked=true;if(muted)return;try{let A=window.AudioContext||window.webkitAudioContext;if(!activeAudio&&A)activeAudio=new A();activeAudio?.resume?.().catch(()=>{});if(activeAudio&&!noiseBuf){let n=Math.ceil(activeAudio.sampleRate*.5);noiseBuf=activeAudio.createBuffer(1,n,activeAudio.sampleRate);let d=noiseBuf.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1}}catch(e){}}
 function noise(duration=.12,vol=.035,freq=1600){if(!activeAudio||muted||!unlocked)return;let a=activeAudio,t=a.currentTime,source=a.createBufferSource(),f=a.createBiquadFilter(),gain=a.createGain();source.buffer=noiseBuf;f.type='bandpass';f.frequency.value=freq;f.Q.value=.65;gain.gain.setValueAtTime(.00001,t);gain.gain.exponentialRampToValueAtTime(vol,t+.012);gain.gain.exponentialRampToValueAtTime(.00001,t+duration);source.connect(f).connect(gain).connect(a.destination);source.start(t);source.stop(t+duration+.01)}
 function pluck(freq=480,vol=.012,sec=.1){if(!activeAudio||muted||!unlocked)return;let a=activeAudio,t=a.currentTime,o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*.91,t+sec);g.gain.setValueAtTime(.00001,t);g.gain.exponentialRampToValueAtTime(vol,t+.005);g.gain.exponentialRampToValueAtTime(.00001,t+sec);o.connect(g).connect(a.destination);o.start(t);o.stop(t+sec+.01)}
-function sfx(type){if(type==='fold'){noise(.19,.035,1100);pluck(235,.008,.095)}else if(type==='cut'){noise(.115,.056,2600);pluck(720,.009,.07)}else if(type==='choose'){noise(.035,.019,1750);pluck(390,.009,.075)}else if(type==='open'){noise(.29,.024,840)}else if(type==='win'){pluck(523,.017,.28);setTimeout(()=>pluck(783,.012,.25),70)}}
+function sfx(type){if(type==='fold'){noise(.19,.035,1100);pluck(235,.008,.095)}else if(type==='cut'){noise(.085,.031,1800);pluck(660,.007,.07)}else if(type==='choose'){noise(.035,.019,1750);pluck(390,.009,.075)}else if(type==='open'){noise(.115,.019,1220)}else if(type==='win'){pluck(523,.017,.28);setTimeout(()=>pluck(783,.012,.25),70)}}
 function tween(from,to,duration,fn){let token=++animationToken;return new Promise(resolve=>{let begin=performance.now();function tick(now){if(token!==animationToken)return resolve(false);let t=clamp((now-begin)/(reduced?Math.min(100,duration):duration));fn(from+(to-from)*ease(t));if(t<1)requestAnimationFrame(tick);else resolve(true)}requestAnimationFrame(tick)})}
 async function finishFold(progress){hold=true;let k=foldIdx,ok=await tween(progress,1,progress>.2?250:340,p=>{showFold(k,p);guideVisibility(false)});if(!ok)return;sfx('fold');foldIdx++;refreshMemory();await new Promise(r=>setTimeout(r,reduced?40:100));if(k+1!==foldIdx)return;hold=false; if(foldIdx>=q().folds.length)enterCut();else showCurrentFold();}
 async function rewindFold(progress){hold=true;let k=foldIdx,ok=await tween(progress,0,165,p=>showFold(k,p));hold=false;if(ok){showCurrentFold();guideVisibility(true)}}
-function guideVisibility(visible){for(let id of ['foldarrow','grab','grabhalo','grabdot'])$(id).style.opacity=visible?'':'0';}
-function parseCuts(){let s=q().cutPath;cutPieces=s.match(/M[^M]+/g)||[s];cutPieces=cutPieces.map(x=>x.trim());cutCentroids=[];cutLines=[];const judge=document.createElementNS('http://www.w3.org/2000/svg','path');judge.setAttribute('d',q().stages[q().folds.length]);svg.appendChild(judge);
+function pointSegmentDistance(p,a,b){let dx=b.x-a.x,dy=b.y-a.y,t=clamp(((p.x-a.x)*dx+(p.y-a.y)*dy)/Math.max(1,dx*dx+dy*dy));return distance(p,{x:a.x+t*dx,y:a.y+t*dy})}
+function guideVisibility(visible){for(let id of ['foldarrow','foldarrowtip','grabdot'])$(id).style.opacity=visible?'':'0';}
+function parseCuts(){let s=q().cutPath;cutPieces=s.match(/M[^M]+/g)||[s];cutPieces=cutPieces.map(x=>x.trim());cutCentroids=[];cutLines=[];cutHitSegments=[];const judge=document.createElementNS('http://www.w3.org/2000/svg','path');judge.setAttribute('d',q().stages[q().folds.length]);svg.appendChild(judge);
  for(let d of cutPieces){let pts=[...d.matchAll(/[ML]\s*(-?[\d.]+),\s*(-?[\d.]+)/g)].map(m=>({x:+m[1],y:+m[2]}));if(pts.length>1&&distance(pts[0],pts.at(-1))<1)pts.pop();let center={x:pts.reduce((v,p)=>v+p.x,0)/pts.length,y:pts.reduce((v,p)=>v+p.y,0)/pts.length};cutCentroids.push(center);
  let edges=[];for(let i=0;i<pts.length;i++){let a=pts[i],b=pts[(i+1)%pts.length],mid={x:(a.x+b.x)/2,y:(a.y+b.y)/2},len=distance(a,b);if(len<2)continue;let test=svg.createSVGPoint();test.x=mid.x;test.y=mid.y;edges.push({a,b,len,inside:judge.isPointInFill(test)});}
  let interior=edges.filter(e=>e.inside);let chosen=interior.length?interior:edges;chosen.sort((a,b)=>b.len-a.len);
  // A V-shaped cut uses its two internal sides; the preview traces the same real cutting edges.
- let segs=chosen.slice(0,interior.length===2?2:1);let dLine=segs.map((e,i)=>`M${e.a.x},${e.a.y} L${e.b.x},${e.b.y}`).join(' ');cutLines.push(dLine);
+ let segs=chosen.slice(0,interior.length===2?2:1);let dLine=segs.map((e,i)=>`M${e.a.x},${e.a.y} L${e.b.x},${e.b.y}`).join(' ');cutLines.push(dLine);cutHitSegments.push(segs);
  }
  judge.remove();cutIdx=0;cutMaskPaths=[];
 }
@@ -237,12 +250,24 @@ function renderOptions(){let n=q().choices.length;const container=$('options');c
  container.querySelectorAll('button').forEach((btn,i)=>{let timer,startX=0,startY=0;btn.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY;timer=setTimeout(()=>{if(phase==='choice'){$('preview').innerHTML=chooseView(q().choices[i]);$('preview').classList.add('show')}},410)});btn.addEventListener('pointermove',e=>{if(Math.hypot(e.clientX-startX,e.clientY-startY)>12)clearTimeout(timer)});['pointerup','pointercancel','pointerleave'].forEach(evt=>btn.addEventListener(evt,()=>{clearTimeout(timer);$('preview').classList.remove('show')}));btn.addEventListener('click',()=>select(i))});}
 function select(i){if(phase!=='choice')return;selected=i;document.querySelectorAll('.option').forEach((btn,j)=>btn.classList.toggle('selected',i===j));sfx('choose');refreshUI()}
 function enterChoice(){cutOverlay.style.display='none';foldOverlay.style.display='none';paperStatic(q().foldedCut);setCamera(q().camera.at(-1));maskHoles.setAttribute('d','');setPhase('choice');renderOptions();}
-function cutWithSwipe(){let piece=cutPieces[cutIdx];cutMaskPaths.push(piece);maskHoles.setAttribute('d',cutMaskPaths.join(' '));$('scratch').setAttribute('d','');$('cutregion').setAttribute('d','');$('cutline').setAttribute('d','');sfx('cut');hold=true;setTimeout(()=>{if(phase!=='cut')return;cutIdx++;hold=false;showCutGuide()},reduced?40:190)}
+function cutWithTap(){let piece=cutPieces[cutIdx];cutMaskPaths.push(piece);maskHoles.setAttribute('d',cutMaskPaths.join(' '));$('scratch').setAttribute('d','');$('cutregion').setAttribute('d','');$('cutline').setAttribute('d','');sfx('cut');hold=true;setTimeout(()=>{if(phase!=='cut')return;cutIdx++;hold=false;showCutGuide()},reduced?40:125)}
 async function unfold(){if(selected<0||hold||phase!=='choice')return;setPhase('unfold');hold=true;foldOverlay.style.display='none';cutOverlay.style.display='none';maskHoles.setAttribute('d','');let token=++animationToken;paperStatic(q().foldedCut);setCamera(q().camera.at(-1));
- await new Promise(r=>setTimeout(r,reduced?35:230));if(token!==animationToken)return;
- for(let k=0;k<q().unfoldMovie.length;k++){if(token!==animationToken)return;let frames=q().unfoldMovie[k],fromCam=q().camera[q().folds.length-k],toCam=q().camera[q().folds.length-k-1];$('phaseLabel').textContent=`UNFOLD  ·  ${k+1} / ${q().unfoldMovie.length}`;sfx('open');let ok=await animateUnfold(k,frames,fromCam,toCam,token);if(!ok)return;await new Promise(r=>setTimeout(r,reduced?35:125));}
+ await new Promise(r=>setTimeout(r,reduced?35:85));if(token!==animationToken)return;
+ for(let k=0;k<q().unfoldMovie.length;k++){if(token!==animationToken)return;let frames=q().unfoldMovie[k],fromCam=q().camera[q().folds.length-k],toCam=q().camera[q().folds.length-k-1];$('phaseLabel').textContent=`UNFOLD  ·  ${k+1} / ${q().unfoldMovie.length}`;sfx('open');let ok=await animateUnfold(k,frames,fromCam,toCam,token);if(!ok)return;await new Promise(r=>setTimeout(r,reduced?30:55));}
  if(token!==animationToken)return;paperStatic(q().final);setCamera(q().camera[0]);hold=false;showResult();}
-function animateUnfold(k,frames,a,b,token){return new Promise(resolve=>{let start=performance.now();const time=reduced?100:650;function tick(now){if(token!==animationToken)return resolve(false);let t=clamp((now-start)/time),x=Math.min(frames.length-1,Math.floor(t*(frames.length-1))),item=frames[x];setPaths(item[0],item[1]);interpolateCam(a,b,t);if(t<1)requestAnimationFrame(tick);else resolve(true)}requestAnimationFrame(tick)})}
+function animateUnfold(k,frames,a,b,token){return new Promise(resolve=>{
+ let start=performance.now(),time=reduced?100:320;
+ function tick(now){
+  if(token!==animationToken)return resolve(false);
+  let t=clamp((now-start)/time);
+  // The sheet moves decisively and settles quickly instead of drifting through a long easing curve.
+  let crisp=t<.76?t*(.94/.76):.94+(t-.76)*(.06/.24);
+  let x=Math.min(frames.length-1,Math.floor(crisp*(frames.length-1))),item=frames[x];
+  setPaths(item[0],item[1]);interpolateCam(a,b,t);
+  if(t<1)requestAnimationFrame(tick);else resolve(true);
+ }
+ requestAnimationFrame(tick)
+})}
 function showResult(){saveMasterResult();setPhase('result');let right=selected===q().correct;$('resultTitle').textContent=right?'ぴったり、正解！':`正解は ${letters[q().correct]}`;$('resultBody').textContent=q().intro?(q().explanation||'折った方向に広げると、こんな模様になる。'):(right?'紙が開いて、模様がつながった。':`あなたの予想：${letters[selected]} ／ 正解：${letters[q().correct]}`);$('resultChip').innerHTML=chooseView(q().choices[q().correct]);if(right)sfx('win');if(!right){let d=q().comparison[selected];$('diffOver').setAttribute('d',d.extra||'');$('diffUnder').setAttribute('d',d.missing||'');}else{$('diffOver').setAttribute('d','');$('diffUnder').setAttribute('d','');}}
 
 // Master 500 — local, offline progress; the user can revisit any level.
@@ -271,17 +296,17 @@ function gestureStart(e){if(hold||!['fold','cut'].includes(phase))return;const r
  let f=q().folds[k],start={x:f.arrow[0][0]*320,y:f.arrow[0][1]*320};let near=distance(p,start)<112;const fpath=flap;let pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onFlap=false;try{onFlap=fpath.isPointInFill(pt)}catch(e){}
  if(!near&&!onFlap)return;
  gesture={kind:'fold',id:e.pointerId,start:root,fold:k,p:0,initial:p};guideVisibility(false);
- }else{const center=cutCentroids[cutIdx];if(!center||distance(p,center)>110)return;gesture={kind:'cut',id:e.pointerId,start:root,last:root,total:0,points:[p],progress:0};}
+ }else{const segs=cutHitSegments[cutIdx]||[];const near=segs.some(s=>pointSegmentDistance(p,s.a,s.b)<38);const pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onRegion=false;try{onRegion=$('cutregion').isPointInFill(pt)}catch(e){}if(!near&&!onRegion)return;gesture={kind:'cut',id:e.pointerId,start:root,moved:false};}
  zone.classList.add('dragging');try{zone.setPointerCapture(e.pointerId)}catch(e){}e.preventDefault();soundUnlock();}
 function gestureMove(e){if(!gesture||gesture.id!==e.pointerId||hold)return;let root=rootCoords(e);if(gesture.kind==='fold'){
  const f=q().folds[gesture.fold],a=sc(f.arrow[0],gesture.fold),b=sc(f.arrow[1],gesture.fold),u={x:b.x-a.x,y:b.y-a.y},v={x:root.x-gesture.start.x,y:root.y-gesture.start.y};let dot=v.x*u.x+v.y*u.y;let p=clamp(dot/Math.max(40,u.x*u.x+u.y*u.y));gesture.p=p;showFold(gesture.fold,p);
- }else{let point=camCoords(root);gesture.total+=distance(gesture.last,root);gesture.last=root;gesture.points.push(point);if(gesture.points.length>70)gesture.points.shift();$('scratch').setAttribute('d',gesture.points.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' '));}
+ }else if(distance(root,gesture.start)>18){gesture.moved=true;}
  e.preventDefault();}
 function gestureEnd(e){if(!gesture||gesture.id!==e.pointerId)return;let g=gesture;gesture=null;zone.classList.remove('dragging');if(g.kind==='fold'){
  if(g.p>=.48)finishFold(g.p);else rewindFold(g.p);
- }else{if(g.total>23){cutWithSwipe()}else{$('scratch').setAttribute('d','');}}
+ }else{if(!g.moved&&distance(rootCoords(e),g.start)<18)cutWithTap();}
  e.preventDefault();}
-zone.addEventListener('pointerdown',gestureStart);zone.addEventListener('pointermove',gestureMove);zone.addEventListener('pointerup',gestureEnd);zone.addEventListener('pointercancel',e=>{if(gesture)gestureEnd(e)});
+zone.addEventListener('pointerdown',gestureStart);zone.addEventListener('pointermove',gestureMove);zone.addEventListener('pointerup',gestureEnd);zone.addEventListener('pointercancel',()=>{gesture=null;zone.classList.remove('dragging')});
 $('undo').addEventListener('click',()=>{if(hold||phase==='unfold')return;if(phase==='choice'){restart(idx);return;}if(phase==='fold'&&foldIdx>0){animationToken++;foldIdx--;hold=false;guideVisibility(true);showCurrentFold();sfx('choose');}else if(phase==='cut'){if(cutIdx>0){cutIdx--;cutMaskPaths.pop();maskHoles.setAttribute('d',cutMaskPaths.join(' '));showCutGuide();}else{animationToken++;foldIdx=q().folds.length-1;cutOverlay.style.display='none';foldOverlay.style.display='';setPhase('fold');showCurrentFold();}}});
 $('count').addEventListener('click',openChapterPicker);
 $('mainbtn').addEventListener('click',()=>{soundUnlock();if(phase==='choice')unfold();else if(phase==='result')restart((idx+1)%PUZZLES.length)});
