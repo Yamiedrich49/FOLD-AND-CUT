@@ -52,7 +52,7 @@ window.__generateMasterPuzzle = function generateMasterPuzzle(seed,foldCount=6){
  const material=polys=>polys.map(p=>svgPoly(normalize(p.poly))+' '+(p.holes||[]).map(h=>svgPoly(normalize(h).reverse())).join(' ')).join(' ');
  const foldedCut=material(finalPieces),allHoles=finalPieces.flatMap(p=>p.originalHoles);
  if(!allHoles.length)throw Error('No cut holes');
- const finalFrom=holes=>svgPoly(original)+' '+holes.map(svgPoly).join(' ');
+ const finalFrom=holes=>svgPoly(original)+' '+holes.map(h=>svgPoly(normalize(h).reverse())).join(' ');
  const final=finalFrom(allHoles),toStage=(poly,h,count)=>{let out=poly.map(p=>p.slice());for(let k=0;k<count;k++)if(h[k])out=out.map(p=>reflect(p,lines[k]));return out};
  const unfoldMovie=[];
  for(let k=n-1;k>=0;k--){
