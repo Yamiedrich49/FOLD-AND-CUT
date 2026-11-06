@@ -33,8 +33,18 @@
 .choicepanel{display:flex;flex:0 0 200px;height:200px;min-height:0;flex-direction:column;gap:6px;visibility:hidden;pointer-events:none}.choice-head{display:flex;align-items:baseline;justify-content:space-between;gap:7px}.choice-head strong{font-size:12px;letter-spacing:.005em}.choice-head small{color:#8fa5a5;font-size:10px}.options{display:grid;gap:6px;grid-template-columns:repeat(4,minmax(0,1fr));height:100%;flex:1;min-height:0}.options.four{grid-template-columns:repeat(2,minmax(0,1fr));height:100%}.options.six{grid-template-columns:repeat(3,minmax(0,1fr));height:100%}
 .option{border-radius:13px;background:#fff;border:1.5px solid #dbe7e7;min-width:0;min-height:0;padding:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;box-shadow:0 2px 5px #d6e0dc14;transition:transform .12s ease,background .12s ease,border-color .12s ease,box-shadow .12s ease;touch-action:manipulation}
 .option:active{transform:translateY(2px) scale(.985)}.option.selected{border-color:var(--teal);background:#e8f9f9;box-shadow:0 0 0 1px #0ab1bd,0 5px 11px #08aab51a}.option .letter{color:#99aaad;font-size:10px;font-weight:900;height:15px}.option.selected .letter{color:#008c9f}.option svg{width:100%;height:calc(100% - 16px);max-height:105px;object-fit:contain}.option svg path{fill:#fffdf7;stroke:#91acb2;stroke-width:4;stroke-linejoin:round}.option.selected svg path{stroke:#138d9b}
-.resultpanel{display:none;position:absolute;bottom:0;left:0;right:0;height:200px;z-index:7;gap:10px;align-items:center;background:#fff;border:1px solid #e0eae8;border-radius:14px;padding:10px 12px}.resultpanel .resulttext{flex:1}.resultpanel strong{font-size:16px;display:block}.resultpanel small{color:#849d9d;font-size:10px;line-height:1.5;display:block;margin-top:3px}.resultchip{width:65px;height:65px;border:1px solid #e4ece9;border-radius:10px;background:#f4f7f6;padding:4px}.resultchip svg{width:100%;height:100%}
-.footer{flex:0 0 auto;min-height:51px;display:flex;align-items:center;gap:9px}.mainbtn{display:none;flex:1;background:var(--teal);border:0;border-radius:14px;color:#fff;font-size:14px;font-weight:900;min-height:50px;box-shadow:0 5px 13px #00a6b52c;transition:transform .12s,background .12s}.mainbtn:disabled{background:#c9dfe1;color:#fff;box-shadow:none}.mainbtn:not(:disabled):active{transform:scale(.988)}.footer-hint{display:block;width:100%;font-size:11px;color:#89a0a1;text-align:center;line-height:1.5}.footleft{display:none}
+.resultpanel{display:none;position:absolute;bottom:0;left:0;right:0;height:202px;z-index:7;flex-direction:column;gap:6px;align-items:stretch;background:#fff;border:1px solid #e0eae8;border-radius:14px;padding:10px 12px}
+.resultpanel .resulttext{flex:0 0 auto;text-align:center}.resultpanel strong{font-size:14px;display:block}.resultpanel small{color:#849d9d;font-size:10px;line-height:1.4;display:block;margin-top:2px}
+.result-comparison{display:flex;flex:1 1 auto;min-height:0;align-items:stretch;justify-content:center;gap:10px}
+.result-view{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:0;min-height:0;max-width:158px;flex:1;padding:5px 7px;border:1px solid #e0e9e7;border-radius:10px;background:#fcfefd}
+.result-view span{font-size:10px;font-weight:850;color:#789094;line-height:1.2}
+.result-view svg{width:100%;height:100%;max-width:142px;min-height:0;flex:1 1 auto}
+.result-view.correct{border-color:#81d6d8;background:#f2fbfb}.result-view.correct span{color:#078d9b}
+.result-view.guess{border-color:#e9dbce;background:#fffdfa}
+.resultpanel.correct-only .result-view{max-width:152px}
+@media(max-height:740px){.resultpanel{height:170px;padding:8px}.result-view svg{max-width:104px}} 
+@media(max-height:615px){.resultpanel{height:130px;padding:5px}.resultpanel small{display:none}.result-view span{font-size:9px}.result-view{padding:2px}}
+[hidden]{display:none!important}.retrybtn{display:none;border:1px solid #b8d6d4;background:#fff;color:#148a95;border-radius:14px;padding:0 16px;min-height:50px;font-size:13px;font-weight:850;white-space:nowrap}.app[data-phase="result"] .retrybtn:not([hidden]){display:block}.footer{flex:0 0 auto;min-height:51px;display:flex;align-items:center;gap:9px}.mainbtn{display:none;flex:1;background:var(--teal);border:0;border-radius:14px;color:#fff;font-size:14px;font-weight:900;min-height:50px;box-shadow:0 5px 13px #00a6b52c;transition:transform .12s,background .12s}.mainbtn:disabled{background:#c9dfe1;color:#fff;box-shadow:none}.mainbtn:not(:disabled):active{transform:scale(.988)}.footer-hint{display:block;width:100%;font-size:11px;color:#89a0a1;text-align:center;line-height:1.5}.footleft{display:none}
 .app[data-phase="choice"] .scene{flex:1 1 auto;min-height:0}.app[data-phase="choice"] .choicepanel{visibility:visible;pointer-events:auto}.app[data-phase="choice"] .mainbtn{display:block}.app[data-phase="choice"] .footer-hint{display:none}
 .app[data-phase="unfold"] .scene{flex:1 1 auto}.app[data-phase="result"] .scene{flex:1 1 auto}.app[data-phase="result"] .resultpanel{display:flex}.app[data-phase="result"] .mainbtn{display:block}.app[data-phase="result"] .footer-hint{display:none}
 .app[data-phase="choice"] .crease-memory{opacity:1}.app[data-phase="unfold"] .crease-memory{opacity:0}.app[data-phase="result"] .crease-memory{opacity:0}
@@ -82,7 +92,7 @@
 }
 .app[data-phase="cut"] .paperzone{cursor:pointer}
 /* Paint the filled paper AFTER the stroke, concealing internal edges where polygons join. */
-.option svg path,.preview svg path,.resultchip svg path,.app[data-phase="result"] .paper-base{paint-order:stroke fill}
+.option svg path,.preview svg path,.result-comparison svg path,.app[data-phase="result"] .paper-base{paint-order:stroke fill}
 .option{border-color:#c9dcda;}
 .option:focus-visible{outline:2px solid #09a9b8;outline-offset:1px}
 </style></head><body>
@@ -101,8 +111,8 @@
 </g></svg><div class="preview" id="preview"></div></div>
 <div class="scene-foot"><div class="instruction" id="instruction">青い紙を <em>指でスッと折ろう</em></div><div class="crease-memory" id="memory"><div class="tiny">折り目の記録</div><svg id="memorySvg" viewBox="-3 -3 70 70" aria-hidden="true"><rect x="1" y="1" width="62" height="62" rx="1"/><g id="memoryLines"></g></svg></div></div></section>
 <section class="choicepanel" id="choicepanel"><div class="choice-head"><strong>広げると、どの模様になる？</strong><small id="choiceCount">4択 · ひとつ選ぼう</small></div><div class="options" id="options"></div></section>
-<section class="resultpanel" id="resultpanel"><div class="resulttext"><strong id="resultTitle">きれいに開いた！</strong><small id="resultBody">最後の折り目まで確認できたね。</small></div><div class="resultchip" id="resultChip"></div></section>
-</div><footer class="footer"><span class="footer-hint" id="footHint">紙の端をつかんで、矢印の方へ動かそう</span><button class="mainbtn" id="mainbtn">模様を選んでください</button></footer></main>
+<section class="resultpanel" id="resultpanel"><div class="resulttext"><strong id="resultTitle">きれいに開いた！</strong><small id="resultBody">最後の折り目まで確認できたね。</small></div><div class="result-comparison" id="resultComparison"></div></section>
+</div><footer class="footer"><span class="footer-hint" id="footHint">紙の端をつかんで、矢印の方へ動かそう</span><button class="retrybtn" id="retrybtn" type="button" hidden>↶ もう一度</button><button class="mainbtn" id="mainbtn">模様を選んでください</button></footer></main>
 <script>window.__FC_FOLDS=[];window.__FC_PUZZLES=[];</script>
 <script src="data/fold-000.js"></script>
 <script src="data/fold-001.js"></script>
@@ -399,7 +409,22 @@ function animateUnfold(k,frames,a,b,token){return new Promise(resolve=>{
  }
  requestAnimationFrame(tick)
 })}
-function showResult(){saveMasterResult();setPhase('result');let right=selected===q().correct;$('resultTitle').textContent=right?'ぴったり、正解！':`正解は ${letters[q().correct]}`;$('resultBody').textContent=q().intro?(q().explanation||'折った方向に広げると、こんな模様になる。'):(right?'紙が開いて、模様がつながった。':`あなたの予想：${letters[selected]} ／ 正解：${letters[q().correct]}`);$('resultChip').innerHTML=chooseView(q().choices[q().correct]);if(right)sfx('win');if(!right){let d=q().comparison[selected];$('diffOver').setAttribute('d',d.extra||'');$('diffUnder').setAttribute('d',d.missing||'');}else{$('diffOver').setAttribute('d','');$('diffUnder').setAttribute('d','');}}
+function showResult(){
+ saveMasterResult();
+ const right=selected===q().correct;
+ setPhase('result');
+ $('resultTitle').textContent=right?'ぴったり、正解！':'おしい！ 見比べてみよう';
+ $('resultBody').textContent=right?'紙を広げると、こんな模様になるよ。':'左が予想、右が正解。どこが違うかな？';
+ const panel=$('resultpanel');panel.classList.toggle('correct-only',right);
+ const card=(label,path,kind)=>`<div class="result-view ${kind}"><span>${label}</span>${chooseView(path)}</div>`;
+ $('resultComparison').innerHTML=right
+  ?card('できあがり',q().choices[q().correct],'correct')
+  :card('選んだ ${letters[selected]}',q().choices[selected],'guess')+card('正解 ${letters[q().correct]}',q().choices[q().correct],'correct');
+ $('retrybtn').hidden=right;
+ $('mainbtn').textContent=right?(idx===PUZZLES.length-1?'最初からもう一度':'次の問題へ  →'):'次の問題へ  →';
+ $('diffOver').setAttribute('d','');$('diffUnder').setAttribute('d','');
+ if(right)sfx('win');
+}
 
 // Master 500 — local, offline progress; the user can revisit any level.
 let masterSave={completed:{},last:0};
@@ -444,7 +469,7 @@ function openChapterPicker(){
 }
 function closeChapterPicker(){document.getElementById('chaptersOverlay').classList.remove('visible');document.body.classList.remove('picker-open')}
 
-function restart(n=idx){animationToken++;hold=false;gesture=null;idx=n;foldIdx=0;cutIdx=0;selected=-1;hintVisible=false;cutPieces=[];cutMaskPaths=[];maskHoles.setAttribute('d','');$('diffOver').setAttribute('d','');$('diffUnder').setAttribute('d','');$('level').textContent=`CH ${String(q().chapter+1).padStart(2,'0')} · LEVEL ${String(idx+1).padStart(3,'0')} · ${q().difficulty}`;$('title').textContent=q().title;$('count').textContent=`${String(idx+1).padStart(3,'0')} / ${String(PUZZLES.length)}`;$('bar').innerHTML=Array.from({length:25},(_,i)=>`<span class="${i===idx%25?'on':i<idx%25?'done':''}"></span>`).join('');foldOverlay.style.display='';cutOverlay.style.display='none';guideVisibility(true);$('preview').classList.remove('show');setPhase('fold');showCurrentFold()}
+function restart(n=idx){animationToken++;hold=false;gesture=null;idx=n;foldIdx=0;cutIdx=0;selected=-1;hintVisible=false;$('retrybtn').hidden=true;cutPieces=[];cutMaskPaths=[];maskHoles.setAttribute('d','');$('diffOver').setAttribute('d','');$('diffUnder').setAttribute('d','');$('level').textContent=`CH ${String(q().chapter+1).padStart(2,'0')} · LEVEL ${String(idx+1).padStart(3,'0')} · ${q().difficulty}`;$('title').textContent=q().title;$('count').textContent=`${String(idx+1).padStart(3,'0')} / ${String(PUZZLES.length)}`;$('bar').innerHTML=Array.from({length:25},(_,i)=>`<span class="${i===idx%25?'on':i<idx%25?'done':''}"></span>`).join('');foldOverlay.style.display='';cutOverlay.style.display='none';guideVisibility(true);$('preview').classList.remove('show');setPhase('fold');showCurrentFold()}
 function gestureStart(e){if(hold||!['fold','cut'].includes(phase))return;const root=rootCoords(e),p=camCoords(root),k=foldIdx;if(phase==='fold'){
  let f=q().folds[k],start=foldGuideStart||{x:f.arrow[0][0]*320,y:f.arrow[0][1]*320};let near=distance(p,start)<112;const fpath=flap;let pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onFlap=false;try{onFlap=fpath.isPointInFill(pt)}catch(e){}
  if(!near&&!onFlap)return;
@@ -462,6 +487,7 @@ function gestureEnd(e){if(!gesture||gesture.id!==e.pointerId)return;let g=gestur
 zone.addEventListener('pointerdown',gestureStart);zone.addEventListener('pointermove',gestureMove);zone.addEventListener('pointerup',gestureEnd);zone.addEventListener('pointercancel',()=>{const g=gesture;gesture=null;zone.classList.remove('dragging');if(g?.kind==='fold'&&!hold)rewindFold(g.p)});
 $('undo').addEventListener('click',()=>{if(hold||phase==='unfold')return;if(phase==='choice'){restart(idx);return;}if(phase==='fold'&&foldIdx>0){animationToken++;foldIdx--;hold=false;guideVisibility(true);showCurrentFold();sfx('choose');}else if(phase==='cut'){if(cutIdx>0){cutIdx--;cutMaskPaths.pop();maskHoles.setAttribute('d',cutMaskPaths.join(' '));showCutGuide();}else{animationToken++;foldIdx=q().folds.length-1;cutOverlay.style.display='none';foldOverlay.style.display='';setPhase('fold');showCurrentFold();}}});
 $('count').addEventListener('click',openChapterPicker);
+$('retrybtn').addEventListener('click',()=>{soundUnlock();if(phase==='result')restart(idx)});
 $('mainbtn').addEventListener('click',()=>{soundUnlock();if(phase==='choice')unfold();else if(phase==='result')restart((idx+1)%PUZZLES.length)});
 $('sound').addEventListener('click',()=>{muted=!muted;$('soundWave').style.display=muted?'none':'';if(!muted)soundUnlock();});
 window.addEventListener('keydown',e=>{if(phase==='choice'&&/^[a-h]$/i.test(e.key)){let n=letters.indexOf(e.key.toUpperCase());if(n<q().choices.length)select(n)}if(e.key==='Enter'&&phase==='choice'&&selected>=0)unfold();if(e.key==='Escape'&&phase==='result')restart(idx)});
