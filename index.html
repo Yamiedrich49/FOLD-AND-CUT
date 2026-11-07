@@ -396,8 +396,8 @@ function showCurrentFold(){
  setMasterView('fold');
 }
 function refreshUI(){let c=q(),stage=$('phaseLabel');$('undo').style.visibility=(phase==='fold'&&foldIdx>0||phase==='cut'&&cutIdx===0||phase==='cut'&&cutIdx>0||phase==='choice')?'visible':'hidden';$('undo').textContent=phase==='choice'?'↶ 折り直す':'↶ 戻す';
-  if(phase==='fold'){stage.textContent=`FOLD  ·  ${foldIdx+1} / ${c.folds.length}`;$('instruction').innerHTML=`${c.folds[foldIdx].label}<br><em>青い点から、矢印へスッ</em>`;$('footHint').textContent='紙の動きが指に合わせて変わります';}
-  else if(phase==='cut'){stage.textContent=`CUT  ·  ${cutIdx+1} / ${cutPieces.length}`;$('instruction').innerHTML=`色のついた切り込みを <em>タップ</em>`;$('footHint').textContent='オレンジの部分を軽くタップして切ろう';}
+  if(phase==='fold'){stage.textContent=`FOLD  ·  ${foldIdx+1} / ${c.folds.length}`;$('instruction').innerHTML=`${c.folds[foldIdx].label}<br><em>青い点から、矢印へスッ</em>`;$('footHint').textContent=foldIdx>0?'逆に引っ張ると、さっきの折り目が開きます':'紙の動きが指に合わせて変わります';}
+  else if(phase==='cut'){stage.textContent=`CUT  ·  ${cutIdx+1} / ${cutPieces.length}`;$('instruction').innerHTML=`色のついた切り込みを <em>タップ</em>`;$('footHint').textContent='タップして切る・逆に引くと折り目が開く';}
   else if(phase==='choice'){stage.textContent='THINK  ·  頭の中でひらく';$('instruction').innerHTML=hintVisible?('<span class="hinttext">'+(q().hint||'紙を逆順に開くイメージで考えよう。')+'</span>'):'折り目を手がかりに、完成形を予想 <button class="hintbtn" id="hintbtn" type="button">ヒントを見る</button>';if(!hintVisible){$('hintbtn').onclick=()=>{hintVisible=true;refreshUI();sfx('choose')}}$('mainbtn').textContent=selected<0?'模様を選んでください':'この模様で、ひらく';$('mainbtn').disabled=selected<0;}
   else if(phase==='unfold'){stage.textContent='UNFOLD  ·  紙をひらく';$('instruction').innerHTML='折り目が戻るところを、見てみよう';}
   else if(phase==='result'){stage.textContent='FINISH  ·  できあがり';$('instruction').innerHTML='ひとつの切り方から、生まれた模様';$('mainbtn').textContent=idx===PUZZLES.length-1?'もう一度、最初から':'次の紙へ  →';$('mainbtn').disabled=false;}
@@ -545,21 +545,109 @@ function restart(n=idx){
  flap.style.fillRule=puzzle.advanced?'nonzero':'evenodd';
  setMasterView('fold');
 foldIdx=0;cutIdx=0;selected=-1;hintVisible=false;$('retrybtn').hidden=true;cutPieces=[];cutMaskPaths=[];maskHoles.setAttribute('d','');$('diffOver').setAttribute('d','');$('diffUnder').setAttribute('d','');$('level').textContent=`CH ${String(q().chapter+1).padStart(2,'0')} · LEVEL ${String(idx+1).padStart(3,'0')} · ${q().difficulty}`;$('title').textContent=q().title;$('count').textContent=`${String(idx+1).padStart(3,'0')} / ${String(PUZZLES.length)}`;$('bar').innerHTML=Array.from({length:25},(_,i)=>`<span class="${i===idx%25?'on':i<idx%25?'done':''}"></span>`).join('');foldOverlay.style.display='';cutOverlay.style.display='none';guideVisibility(true);$('preview').classList.remove('show');setPhase('fold');showCurrentFold()}
-function gestureStart(e){if(hold||!['fold','cut'].includes(phase))return;const root=rootCoords(e),p=camCoords(root),k=foldIdx;if(phase==='fold'){
- let f=q().folds[k],start=foldGuideStart||{x:f.arrow[0][0]*320,y:f.arrow[0][1]*320};let near=distance(p,start)<112;const fpath=flap;let pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onFlap=false;try{onFlap=fpath.isPointInFill(pt)}catch(e){}
- if(!near&&!onFlap)return;
- gesture={kind:'fold',id:e.pointerId,start:root,fold:k,p:0,initial:p};guideVisibility(false);
- }else{const segs=cutHitSegments[cutIdx]||[];const near=segs.some(s=>pointSegmentDistance(p,s.a,s.b)<38);const pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;let onRegion=false;try{onRegion=$('cutregion').isPointInFill(pt)}catch(e){}if(!near&&!onRegion)return;gesture={kind:'cut',id:e.pointerId,start:root,moved:false};}
- zone.classList.add('dragging');try{zone.setPointerCapture(e.pointerId)}catch(e){}e.preventDefault();soundUnlock();}
-function gestureMove(e){if(!gesture||gesture.id!==e.pointerId||hold)return;let root=rootCoords(e);if(gesture.kind==='fold'){
- const f=q().folds[gesture.fold],a=sc(f.arrow[0],gesture.fold),b=sc(f.arrow[1],gesture.fold),u={x:b.x-a.x,y:b.y-a.y},v={x:root.x-gesture.start.x,y:root.y-gesture.start.y};let dot=v.x*u.x+v.y*u.y;let p=clamp(dot/Math.max(40,u.x*u.x+u.y*u.y));gesture.p=p;showFold(gesture.fold,p);
- }else if(distance(root,gesture.start)>18){gesture.moved=true;}
- e.preventDefault();}
-function gestureEnd(e){if(!gesture||gesture.id!==e.pointerId)return;let g=gesture;gesture=null;zone.classList.remove('dragging');if(g.kind==='fold'){
- if(g.p>=.48)finishFold(g.p);else rewindFold(g.p);
- }else{if(!g.moved&&distance(rootCoords(e),g.start)<18)cutWithTap();}
- e.preventDefault();}
-zone.addEventListener('pointerdown',gestureStart);zone.addEventListener('pointermove',gestureMove);zone.addEventListener('pointerup',gestureEnd);zone.addEventListener('pointercancel',()=>{const g=gesture;gesture=null;zone.classList.remove('dragging');if(g?.kind==='fold'&&!hold)rewindFold(g.p)});
+// Hold a folded sheet and pull against the previous fold to open it again.
+// Decide intent after movement so forward folds and tap-to-cut keep working.
+function foldVector(f,reverse=false){
+ const a=sc(f.arrow[0]),b=sc(f.arrow[1]);
+ return reverse?{x:a.x-b.x,y:a.y-b.y}:{x:b.x-a.x,y:b.y-a.y};
+}
+function projectFold(v,u){return clamp((v.x*u.x+v.y*u.y)/Math.max(40,u.x*u.x+u.y*u.y))}
+function sheetContains(p){
+ const pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;
+ try{return base.isPointInFill(pt)||flap.isPointInFill(pt)}catch(e){return false}
+}
+function canOpenLastFold(p){
+ if(foldIdx<1||(phase==='cut'&&cutIdx>0))return false;
+ return sheetContains(p)||distance(p,sc(q().folds[foldIdx-1].arrow[1]))<112;
+}
+async function releaseOpen(progress,cancelled=false){
+ const k=foldIdx-1,fromCut=phase==='cut';
+ if(k<0)return;
+ hold=true;
+ const succeeded=!cancelled&&progress>=.43;
+ const ok=await tween(1-progress,succeeded?0:1,reduced?90:succeeded?185:125,p=>showFold(k,p));
+ if(!ok){hold=false;return}
+ if(succeeded){
+  foldIdx=k;cutIdx=0;cutMaskPaths=[];maskHoles.setAttribute('d','');
+  if(fromCut)setPhase('fold');
+  sfx('open');
+ }
+ hold=false;
+ if(fromCut&&!succeeded){enterCut();return}
+ foldOverlay.style.display='';cutOverlay.style.display='none';
+ showCurrentFold();
+}
+function gestureStart(e){
+ if(hold||!['fold','cut'].includes(phase))return;
+ const root=rootCoords(e),p=camCoords(root);
+ const mayOpen=canOpenLastFold(p);
+ let mayFold=false,mayCut=false;
+ if(phase==='fold'){
+  let start=foldGuideStart||sc(q().folds[foldIdx].arrow[0]);
+  const pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;
+  let onFlap=false;try{onFlap=flap.isPointInFill(pt)}catch(e){}
+  mayFold=distance(p,start)<112||onFlap;
+ }else{
+  const edges=cutHitSegments[cutIdx]||[];
+  const pt=svg.createSVGPoint();pt.x=p.x;pt.y=p.y;
+  let onRegion=false;try{onRegion=$('cutregion').isPointInFill(pt)}catch(e){}
+  mayCut=onRegion||edges.some(x=>pointSegmentDistance(p,x.a,x.b)<38);
+ }
+ if(!mayOpen&&!mayFold&&!mayCut)return;
+ const oldGrip=mayOpen?sc(q().folds[foldIdx-1].arrow[1]):null;
+ const newGrip=mayFold?(foldGuideStart||sc(q().folds[foldIdx].arrow[0])):null;
+ gesture={kind:'intent',id:e.pointerId,start:root,
+  screen:{x:e.clientX,y:e.clientY},mayOpen,mayFold,mayCut,
+  preferOpen:mayOpen&&(!mayFold||distance(p,oldGrip)+12<distance(p,newGrip)),
+  p:0,moved:false};
+ zone.classList.add('dragging');
+ try{zone.setPointerCapture(e.pointerId)}catch(e){}
+ e.preventDefault();soundUnlock();
+}
+function gestureMove(e){
+ if(!gesture||gesture.id!==e.pointerId||hold)return;
+ const g=gesture,root=rootCoords(e);
+ const v={x:root.x-g.start.x,y:root.y-g.start.y};
+ const travelled=Math.hypot(e.clientX-g.screen.x,e.clientY-g.screen.y);
+ if(g.kind==='intent'&&travelled>=11){
+  const forward=g.mayFold?foldVector(q().folds[foldIdx]):null;
+  const backward=g.mayOpen?foldVector(q().folds[foldIdx-1],true):null;
+  const fs=forward?(v.x*forward.x+v.y*forward.y)/Math.hypot(forward.x,forward.y):0;
+  const bs=backward?(v.x*backward.x+v.y*backward.y)/Math.hypot(backward.x,backward.y):0;
+  if(g.mayOpen&&bs>3&&(bs>fs*1.15||(!g.mayFold)||g.preferOpen&&bs>=fs*.85)){
+   g.kind='open';foldOverlay.style.display='none';cutOverlay.style.display='none';
+  }else if(g.mayFold&&fs>3&&(!g.mayOpen||fs>=bs)){
+   g.kind='fold';guideVisibility(false);
+  }else if(travelled>=20)g.moved=true;
+ }
+ if(g.kind==='fold'){
+  g.p=projectFold(v,foldVector(q().folds[foldIdx]));
+  showFold(foldIdx,g.p);
+ }else if(g.kind==='open'){
+  g.p=projectFold(v,foldVector(q().folds[foldIdx-1],true));
+  showFold(foldIdx-1,1-g.p);
+ }else if(travelled>18)g.moved=true;
+ e.preventDefault();
+}
+function gestureEnd(e){
+ if(!gesture||gesture.id!==e.pointerId)return;
+ const g=gesture;gesture=null;zone.classList.remove('dragging');
+ if(g.kind==='fold'){
+  if(g.p>=.48)finishFold(g.p);else rewindFold(g.p);
+ }else if(g.kind==='open')releaseOpen(g.p);
+ else if(g.mayCut&&!g.moved&&Math.hypot(e.clientX-g.screen.x,e.clientY-g.screen.y)<18)cutWithTap();
+ e.preventDefault();
+}
+zone.addEventListener('pointerdown',gestureStart);
+zone.addEventListener('pointermove',gestureMove);
+zone.addEventListener('pointerup',gestureEnd);
+zone.addEventListener('pointercancel',()=>{
+ const g=gesture;gesture=null;zone.classList.remove('dragging');
+ if(!g||hold)return;
+ if(g.kind==='fold')rewindFold(g.p);
+ else if(g.kind==='open')releaseOpen(g.p,true);
+});
+
 $('undo').addEventListener('click',()=>{if(hold||phase==='unfold')return;if(phase==='choice'){restart(idx);return;}if(phase==='fold'&&foldIdx>0){animationToken++;foldIdx--;hold=false;guideVisibility(true);showCurrentFold();sfx('choose');}else if(phase==='cut'){if(cutIdx>0){cutIdx--;cutMaskPaths.pop();maskHoles.setAttribute('d',cutMaskPaths.join(' '));showCutGuide();}else{animationToken++;foldIdx=q().folds.length-1;cutOverlay.style.display='none';foldOverlay.style.display='';setPhase('fold');showCurrentFold();}}});
 $('count').addEventListener('click',openChapterPicker);
 $('retrybtn').addEventListener('click',()=>{soundUnlock();if(phase==='result')restart(idx)});
